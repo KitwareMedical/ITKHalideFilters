@@ -25,6 +25,8 @@ if (NOT IS_X86 EQUAL -1 OR NOT IS_AMD EQUAL -1)
   set(INSTRUCTION_SET "x86")
 elseif (NOT IS_ARM EQUAL -1)
   set(INSTRUCTION_SET "arm")
+else()
+  message(FATAL_ERROR "Cannot infer instruction set for Halide release")
 endif ()
 
 # Check the bit version
@@ -32,6 +34,8 @@ if(CMAKE_SIZEOF_VOID_P EQUAL 8)
   set(BIT_VERSION "64")
 elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
   set(BIT_VERSION "32")
+else()
+  message(FATAL_ERROR "Cannot infer bitness for Halide release")
 endif()
 
 # set operating system
