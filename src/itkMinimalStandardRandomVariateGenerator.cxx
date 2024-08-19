@@ -16,6 +16,7 @@
  *
  *=========================================================================*/
 #include "itkMinimalStandardRandomVariateGenerator.h"
+#include "my_first_generator.h"
 
 namespace itk
 {
