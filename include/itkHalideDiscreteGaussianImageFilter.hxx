@@ -27,15 +27,13 @@ namespace itk
 {
 
 template <typename TInputImage, typename TOutputImage>
-HalideDiscreteGaussianImageFilter<TInputImage, TOutputImage>
-::HalideDiscreteGaussianImageFilter()
+HalideDiscreteGaussianImageFilter<TInputImage, TOutputImage>::HalideDiscreteGaussianImageFilter()
 {}
 
 
 template <typename TInputImage, typename TOutputImage>
 void
-HalideDiscreteGaussianImageFilter<TInputImage, TOutputImage>
-::PrintSelf(std::ostream & os, Indent indent) const
+HalideDiscreteGaussianImageFilter<TInputImage, TOutputImage>::PrintSelf(std::ostream & os, Indent indent) const
 {
   Superclass::PrintSelf(os, indent);
 }
@@ -43,8 +41,8 @@ HalideDiscreteGaussianImageFilter<TInputImage, TOutputImage>
 
 template <typename TInputImage, typename TOutputImage>
 void
-HalideDiscreteGaussianImageFilter<TInputImage, TOutputImage>
-::DynamicThreadedGenerateData(const OutputRegionType & outputRegion)
+HalideDiscreteGaussianImageFilter<TInputImage, TOutputImage>::DynamicThreadedGenerateData(
+  const OutputRegionType & outputRegion)
 {
   OutputImageType *      output = this->GetOutput();
   const InputImageType * input = this->GetInput();
