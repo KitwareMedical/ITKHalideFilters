@@ -69,10 +69,7 @@ protected:
   using OutputRegionType = typename OutputImageType::RegionType;
 
   void
-  GenerateData(const OutputRegionType & outputRegion);
-
-  void
-  DynamicThreadedGenerateData(const OutputRegionType & outputRegion) override;
+  GenerateData() override;
 
 private:
 #ifdef ITK_USE_CONCEPT_CHECKING

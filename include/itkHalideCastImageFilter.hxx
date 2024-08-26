@@ -44,10 +44,10 @@ HalideCastImageFilter<TInputImage, TOutputImage>::PrintSelf(std::ostream & os, I
 
 template <typename TInputImage, typename TOutputImage>
 void
-HalideCastImageFilter<TInputImage, TOutputImage>::GenerateData(const OutputRegionType & outputRegion)
+HalideCastImageFilter<TInputImage, TOutputImage>::GenerateData()
 {
   const InputImageType *              input = this->GetInput();
-  typename InputImageType::RegionType inputRegion = input->GetLargestPosibleRegion();
+  typename InputImageType::RegionType inputRegion = input->GetBufferedRegion();
   typename InputImageType::SizeType   inputSize = inputRegion.GetSize();
 
   std::vector<int> sizes;
@@ -72,11 +72,6 @@ HalideCastImageFilter<TInputImage, TOutputImage>::GenerateData(const OutputRegio
   importFilter->Update();
   this->GraftOutput(importFilter->GetOutput());
 }
-
-template <typename TInputImage, typename TOutputImage>
-void
-HalideCastImageFilter<TInputImage, TOutputImage>::DynamicThreadedGenerateData(const OutputRegionType & outputRegion)
-{}
 
 } // end namespace itk
 
