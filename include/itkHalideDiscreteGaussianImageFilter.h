@@ -59,9 +59,16 @@ public:
   /** Standard New macro. */
   itkNewMacro(Self);
 
+  /** Gaussian Kernal Sigma (mm) */
+  itkSetMacro(Sigma, float);
+
+  /** Gaussian Kernal Sigma (mm) */
+  itkGetMacro(Sigma, float);
+
 protected:
   HalideDiscreteGaussianImageFilter();
-  ~HalideDiscreteGaussianImageFilter() override = default;
+  ~
+  HalideDiscreteGaussianImageFilter() override = default;
 
   void
   PrintSelf(std::ostream & os, Indent indent) const override;
@@ -74,8 +81,10 @@ protected:
 private:
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Add concept checking such as
-  // itkConceptMacro( FloatingPointPixel, ( itk::Concept::IsFloatingPoint< typename InputImageType::PixelType > ) );
+  itkConceptMacro(FloatingPointPixel, (itk::Concept::IsFloatingPoint<typename InputImageType::PixelType>));
 #endif
+
+  float m_Sigma = 2.0;
 };
 } // namespace itk
 

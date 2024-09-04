@@ -44,9 +44,15 @@ template <typename TInputImage, typename TOutputImage>
 void
 HalideDiscreteGaussianImageFilter<TInputImage, TOutputImage>::GenerateData()
 {
-  const InputImageType *              input = this->GetInput();
-  typename InputImageType::RegionType inputRegion = input->GetBufferedRegion();
-  typename InputImageType::SizeType   inputSize = inputRegion.GetSize();
+  const InputImageType *               input = this->GetInput();
+  typename InputImageType::RegionType  inputRegion = input->GetBufferedRegion();
+  typename InputImageType::SizeType    inputSize = inputRegion.GetSize();
+  typename InputImageType::SpacingType inputSpacing = input->GetSpacing();
+
+  const float sigma = GetSigma();
+  const float sigma_x = sigma / inputSpacing[0];
+  const float sigma_y = sigma / inputSpacing[1];
+  const float sigma_z = sigma / inputSpacing[2];
 
   OutputImageType * output = this->GetOutput();
   output->SetRegions(inputRegion);
@@ -58,7 +64,7 @@ HalideDiscreteGaussianImageFilter<TInputImage, TOutputImage>::GenerateData()
   Halide::Runtime::Buffer<const InputPixelType> inputBuffer(input->GetBufferPointer(), sizes);
   Halide::Runtime::Buffer<OutputPixelType>      outputBuffer(output->GetBufferPointer(), sizes);
 
-  itkHalideDiscreteGaussianImpl(inputBuffer, outputBuffer);
+  itkHalideDiscreteGaussianImpl(inputBuffer, sigma_x, sigma_y, sigma_z, outputBuffer);
 }
 
 } // end namespace itk

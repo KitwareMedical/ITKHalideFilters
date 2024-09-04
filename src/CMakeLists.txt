@@ -1,21 +1,18 @@
 find_package(Halide REQUIRED shared)
 
-add_executable(my_generators generators.cpp)
-target_link_libraries(my_generators PRIVATE Halide::Generator)
-add_halide_library(my_first_generator FROM my_generators HEADER my_first_generator_h)
-add_halide_library(cast_image_generator FROM my_generators HEADER cast_image_generator_h PARAMS output.type=uint32)
+add_executable(itkHalideGenerators generators.cpp)
+target_link_libraries(itkHalideGenerators PRIVATE Halide::Generator)
+
 add_halide_library(itkHalideDiscreteGaussianImpl
-  FROM my_generators
-  HEADER itkHalideDiscreteGaussianImplF3
-  PARAMS input.type=float32 output.type=float32
+  FROM itkHalideGenerators
+  HEADER itkHalideDiscreteGaussianImpl_h
+  #  PARAMS input.type=float32 output.type=float32
   )
 
 set(HalideFilters_SRCS
-  itkMinimalStandardRandomVariateGenerator.cxx
-  ${my_first_generator_h}
-  ${cast_image_generator_h}
+  ${itkHalideDiscreteGaussianImpl_h}
   )
 
 itk_module_add_library(HalideFilters ${HalideFilters_SRCS})
 target_include_directories(HalideFilters PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
-target_link_libraries(HalideFilters PRIVATE cast_image_generator itkHalideDiscreteGaussianImpl)
+target_link_libraries(HalideFilters PUBLIC itkHalideDiscreteGaussianImpl)
