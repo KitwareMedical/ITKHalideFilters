@@ -38,3 +38,22 @@ public:
 };
 
 HALIDE_REGISTER_GENERATOR(CastImageGenerator, cast_image_generator)
+
+class DiscreteGaussianGenerator : public Generator<DiscreteGaussianGenerator>
+{
+public:
+  Input<Buffer<void, 3>>  input{ "input" };
+  Output<Buffer<void, 3>> output{ "output" };
+
+  Var x, y, z;
+
+  void
+  generate()
+  {
+    output(x, y, z) = -input(x, y, z);
+
+    output.vectorize(x, 4);
+  }
+};
+
+HALIDE_REGISTER_GENERATOR(DiscreteGaussianGenerator, itkHalideDiscreteGaussianImpl)

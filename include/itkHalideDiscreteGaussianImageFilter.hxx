@@ -20,8 +20,9 @@
 
 #include "itkHalideDiscreteGaussianImageFilter.h"
 
-#include "itkImageRegionIterator.h"
-#include "itkImageRegionConstIterator.h"
+#include "itkHalideDiscreteGaussianImpl.h"
+
+#include <HalideBuffer.h>
 
 namespace itk
 {
@@ -41,21 +42,23 @@ HalideDiscreteGaussianImageFilter<TInputImage, TOutputImage>::PrintSelf(std::ost
 
 template <typename TInputImage, typename TOutputImage>
 void
-HalideDiscreteGaussianImageFilter<TInputImage, TOutputImage>::DynamicThreadedGenerateData(
-  const OutputRegionType & outputRegion)
+HalideDiscreteGaussianImageFilter<TInputImage, TOutputImage>::GenerateData()
 {
-  OutputImageType *      output = this->GetOutput();
-  const InputImageType * input = this->GetInput();
-  using InputRegionType = typename InputImageType::RegionType;
-  InputRegionType inputRegion = InputRegionType(outputRegion.GetSize());
+  const InputImageType *              input = this->GetInput();
+  typename InputImageType::RegionType inputRegion = input->GetBufferedRegion();
+  typename InputImageType::SizeType   inputSize = inputRegion.GetSize();
 
-  itk::ImageRegionConstIterator<InputImageType> in(input, inputRegion);
-  itk::ImageRegionIterator<OutputImageType>     out(output, outputRegion);
+  OutputImageType * output = this->GetOutput();
+  output->SetRegions(inputRegion);
+  output->Allocate();
 
-  for (in.GoToBegin(), out.GoToBegin(); !in.IsAtEnd() && !out.IsAtEnd(); ++in, ++out)
-  {
-    out.Set(in.Get());
-  }
+  std::vector<int> sizes(3, 1);
+  std::copy(inputSize.begin(), inputSize.end(), sizes.begin());
+
+  Halide::Runtime::Buffer<const InputPixelType> inputBuffer(input->GetBufferPointer(), sizes);
+  Halide::Runtime::Buffer<OutputPixelType>      outputBuffer(output->GetBufferPointer(), sizes);
+
+  itkHalideDiscreteGaussianImpl(inputBuffer, outputBuffer);
 }
 
 } // end namespace itk
