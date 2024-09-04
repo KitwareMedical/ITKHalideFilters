@@ -65,7 +65,7 @@ itkHalideDiscreteGaussianImageFilterTest(int argc, char * argv[])
   }
   const char * outputImageFileName = argv[1];
 
-  constexpr unsigned int Dimension = 2;
+  constexpr unsigned int Dimension = 3;
   using PixelType = float;
   using ImageType = itk::Image<PixelType, Dimension>;
 
@@ -85,6 +85,7 @@ itkHalideDiscreteGaussianImageFilterTest(int argc, char * argv[])
   ShowProgress::Pointer showProgress = ShowProgress::New();
   filter->AddObserver(itk::ProgressEvent(), showProgress);
   filter->SetInput(image);
+  filter->SetSigma(2);
 
   using WriterType = itk::ImageFileWriter<ImageType>;
   WriterType::Pointer writer = WriterType::New();

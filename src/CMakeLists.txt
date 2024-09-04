@@ -6,7 +6,8 @@ target_link_libraries(itkHalideGenerators PRIVATE Halide::Generator)
 add_halide_library(itkHalideDiscreteGaussianImpl
   FROM itkHalideGenerators
   HEADER itkHalideDiscreteGaussianImpl_h
-  #  PARAMS input.type=float32 output.type=float32
+  # PARAMS input.type=float32 output.type=float32
+  FEATURES cuda # debug
   )
 
 set(HalideFilters_SRCS

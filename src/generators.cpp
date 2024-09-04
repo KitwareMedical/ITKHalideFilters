@@ -61,7 +61,10 @@ public:
 
     output(x, y, z) = blur_z(x, y, z);
 
-    output.vectorize(x, 4);
+
+    Var ix, iy, iz, ox, oy, oz;
+
+    output.gpu_tile(x, y, z, ix, iy, iz, ox, oy, oz, 4, 4, 4);
   }
 };
 

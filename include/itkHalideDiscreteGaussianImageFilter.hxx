@@ -22,6 +22,7 @@
 
 #include "itkHalideDiscreteGaussianImpl.h"
 
+#include <Halide.h>
 #include <HalideBuffer.h>
 
 namespace itk
@@ -64,7 +65,9 @@ HalideDiscreteGaussianImageFilter<TInputImage, TOutputImage>::GenerateData()
   Halide::Runtime::Buffer<const InputPixelType> inputBuffer(input->GetBufferPointer(), sizes);
   Halide::Runtime::Buffer<OutputPixelType>      outputBuffer(output->GetBufferPointer(), sizes);
 
+  inputBuffer.set_host_dirty();
   itkHalideDiscreteGaussianImpl(inputBuffer, sigma_x, sigma_y, sigma_z, outputBuffer);
+  outputBuffer.copy_to_host();
 }
 
 } // end namespace itk
