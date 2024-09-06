@@ -8,7 +8,7 @@ import itk
 
 parser = argparse.ArgumentParser(description="Example short description.")
 parser.add_argument("input_image")
-parser.add_argument("sigma", type=float)
+parser.add_argument("variance", type=float)
 parser.add_argument("output_image")
 
 ImageType = itk.Image[itk.F, 3]
@@ -21,7 +21,7 @@ if __name__ == '__main__':
 
     proc = FilterType.New()
     proc.SetInput(im)
-    proc.SetSigma(args.sigma)
+    proc.SetVariance(args.variance)
 
     start = perf_counter()
     proc.Update()

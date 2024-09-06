@@ -32,6 +32,10 @@ namespace itk
  *
  * \ingroup HalideFilters
  *
+ * Limitations compared te itkDiscreteGaussianImageFilter:
+ * - Only supports isotropic variance and maximum error (to simplify wrapper)
+ * - Only supports 3d images (to simplify wrapper)
+ *
  */
 template <typename TInputImage, typename TOutputImage>
 class HalideDiscreteGaussianImageFilter : public ImageToImageFilter<TInputImage, TOutputImage>
@@ -59,11 +63,18 @@ public:
   /** Standard New macro. */
   itkNewMacro(Self);
 
-  /** Gaussian Kernal Sigma (mm) */
-  itkSetMacro(Sigma, float);
+  itkSetMacro(Variance, float);
+  itkGetMacro(Variance, float);
 
-  /** Gaussian Kernal Sigma (mm) */
-  itkGetMacro(Sigma, float);
+  itkSetMacro(MaximumError, float);
+  itkGetMacro(MaximumError, float);
+
+  itkGetMacro(MaximumKernelWidth, unsigned int);
+  itkSetMacro(MaximumKernelWidth, unsigned int);
+
+  itkGetMacro(UseImageSpacing, bool);
+  itkSetMacro(UseImageSpacing, bool);
+  itkBooleanMacro(UseImageSpacing);
 
 protected:
   HalideDiscreteGaussianImageFilter();
@@ -84,7 +95,10 @@ private:
   itkConceptMacro(FloatingPointPixel, (itk::Concept::IsFloatingPoint<typename InputImageType::PixelType>));
 #endif
 
-  float m_Sigma = 2.0;
+  float        m_Variance = 0;
+  float        m_MaximumError = 0.01;
+  unsigned int m_MaximumKernelWidth = 32;
+  bool         m_UseImageSpacing = true;
 };
 } // namespace itk
 

@@ -1,18 +1,15 @@
 #include "Halide.h"
 
-#define _USE_MATH_DEFINES
-#include <math.h>
-
 using namespace Halide;
 
-class DiscreteGaussianGenerator : public Generator<DiscreteGaussianGenerator>
+class SeparableConvolutionGenerator : public Generator<SeparableConvolutionGenerator>
 {
 public:
   Input<Buffer<float, 3>> input{ "input" };
 
-  Input<float> sigma_x{ "sigma_x" };
-  Input<float> sigma_y{ "sigma_y" };
-  Input<float> sigma_z{ "sigma_z" };
+  Input<Buffer<float, 1>> kernel_x{"kernel_x"};
+  Input<Buffer<float, 1>> kernel_y{"kernel_y"};
+  Input<Buffer<float, 1>> kernel_z{"kernel_z"};
 
   Output<Buffer<float, 3>> output{ "output" };
 
@@ -23,27 +20,9 @@ public:
   {
     using namespace ConciseCasts;
 
-    Var i{ "i" };
-
-    const auto root_2_pi = static_cast<float>(std::sqrt(M_PI * 2));
-
-    Func kernel_x{ "kernel_x" };
-    kernel_x(i) = Halide::exp(-i * i / (2 * sigma_x * sigma_x)) / Expr(root_2_pi) * sigma_x;
-
-    Func kernel_y{ "kernel_y" };
-    kernel_y(i) = Halide::exp(-i * i / (2 * sigma_y * sigma_y)) / Expr(root_2_pi) * sigma_y;
-
-    Func kernel_z{ "kernel_z" };
-    kernel_z(i) = Halide::exp(-i * i / (2 * sigma_z * sigma_z)) / Expr(root_2_pi) * sigma_z;
-
-    Expr r_x = i32(2 * sigma_x + 1);
-    RDom k_x{ -r_x, 2 * r_x + 1, "k_x" };
-
-    Expr r_y = i32(2 * sigma_y + 1);
-    RDom k_y{ -r_y, 2 * r_y + 1, "k_y" };
-
-    Expr r_z = i32(2 * sigma_z + 1);
-    RDom k_z{ -r_z, 2 * r_z + 1, "k_z" };
+    RDom k_x{ kernel_x.dim(0).min(), kernel_x.dim(0).extent(), "k_x" };
+    RDom k_y{ kernel_y.dim(0).min(), kernel_y.dim(0).extent(), "k_y" };
+    RDom k_z{ kernel_z.dim(0).min(), kernel_z.dim(0).extent(), "k_z" };
 
     Func safe = BoundaryConditions::repeat_edge(input);
 
@@ -76,4 +55,4 @@ public:
   }
 };
 
-HALIDE_REGISTER_GENERATOR(DiscreteGaussianGenerator, itkHalideDiscreteGaussianImpl)
+HALIDE_REGISTER_GENERATOR(SeparableConvolutionGenerator, itkHalideSeparableConvolutionImpl)
