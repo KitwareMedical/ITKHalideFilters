@@ -33,7 +33,10 @@ namespace itk
 
 template <typename TInputImage, typename TOutputImage>
 HalideDiscreteGaussianImageFilter<TInputImage, TOutputImage>::HalideDiscreteGaussianImageFilter()
-{}
+{
+  this->DynamicMultiThreadingOff();
+  this->ThreaderUpdateProgressOff();
+}
 
 
 template <typename TInputImage, typename TOutputImage>
