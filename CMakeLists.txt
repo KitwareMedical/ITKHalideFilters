@@ -65,7 +65,7 @@ FetchContent_MakeAvailable(halide)
 set(Halide_DIR "${halide_SOURCE_DIR}/lib/cmake/Halide")
 set(HalideHelpers_DIR "${halide_SOURCE_DIR}/lib/cmake/HalideHelpers")
 
-set(HalideFilters_LIBRARIES HalideFilters my_first_generator)
+set(HalideFilters_LIBRARIES HalideFilters)
 
 if(NOT ITK_SOURCE_DIR)
   find_package(ITK REQUIRED)

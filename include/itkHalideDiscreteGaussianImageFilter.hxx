@@ -20,22 +20,28 @@
 
 #include "itkHalideDiscreteGaussianImageFilter.h"
 
-#include "itkImageRegionIterator.h"
-#include "itkImageRegionConstIterator.h"
+#include "itkHalideSeparableConvolutionImpl.h"
+
+#include "itkGaussianOperator.h"
+
+#include <Halide.h>
+#include <HalideBuffer.h>
+#include <iomanip>
 
 namespace itk
 {
 
 template <typename TInputImage, typename TOutputImage>
-HalideDiscreteGaussianImageFilter<TInputImage, TOutputImage>
-::HalideDiscreteGaussianImageFilter()
-{}
+HalideDiscreteGaussianImageFilter<TInputImage, TOutputImage>::HalideDiscreteGaussianImageFilter()
+{
+  this->DynamicMultiThreadingOff();
+  this->ThreaderUpdateProgressOff();
+}
 
 
 template <typename TInputImage, typename TOutputImage>
 void
-HalideDiscreteGaussianImageFilter<TInputImage, TOutputImage>
-::PrintSelf(std::ostream & os, Indent indent) const
+HalideDiscreteGaussianImageFilter<TInputImage, TOutputImage>::PrintSelf(std::ostream & os, Indent indent) const
 {
   Superclass::PrintSelf(os, indent);
 }
@@ -43,21 +49,50 @@ HalideDiscreteGaussianImageFilter<TInputImage, TOutputImage>
 
 template <typename TInputImage, typename TOutputImage>
 void
-HalideDiscreteGaussianImageFilter<TInputImage, TOutputImage>
-::DynamicThreadedGenerateData(const OutputRegionType & outputRegion)
+HalideDiscreteGaussianImageFilter<TInputImage, TOutputImage>::GenerateData()
 {
-  OutputImageType *      output = this->GetOutput();
-  const InputImageType * input = this->GetInput();
-  using InputRegionType = typename InputImageType::RegionType;
-  InputRegionType inputRegion = InputRegionType(outputRegion.GetSize());
+  const InputImageType *               input = this->GetInput();
+  typename InputImageType::RegionType  inputRegion = input->GetBufferedRegion();
+  typename InputImageType::SizeType    inputSize = inputRegion.GetSize();
+  typename InputImageType::SpacingType inputSpacing = input->GetSpacing();
 
-  itk::ImageRegionConstIterator<InputImageType> in(input, inputRegion);
-  itk::ImageRegionIterator<OutputImageType>     out(output, outputRegion);
+  std::vector<Halide::Runtime::Buffer<float, 1>> kernel_buffers{};
 
-  for (in.GoToBegin(), out.GoToBegin(); !in.IsAtEnd() && !out.IsAtEnd(); ++in, ++out)
+  // compute kernel coefficients with itk::GaussianOperator to match behavior with itk::DiscreteGaussianImageFilter
+  for (int dim = 0; dim < InputImageDimension; ++dim)
   {
-    out.Set(in.Get());
+    GaussianOperator<float, 1> oper{};
+    oper.SetMaximumError(m_MaximumError);
+    oper.SetMaximumKernelWidth(m_MaximumKernelWidth);
+
+    float variance = m_Variance;
+    if (m_UseImageSpacing)
+    {
+      variance /= inputSpacing[dim];
+    }
+    oper.SetVariance(variance);
+
+    oper.CreateDirectional();
+
+    Halide::Runtime::Buffer<float, 1> & buf = kernel_buffers.emplace_back(static_cast<int>(oper.GetSize(0)));
+    buf.set_min(-static_cast<int>(oper.GetRadius(0)));
+    std::copy(oper.Begin(), oper.End(), buf.begin());
+    buf.set_host_dirty();
   }
+
+  OutputImageType * output = this->GetOutput();
+  output->SetRegions(inputRegion);
+  output->Allocate();
+
+  std::vector<int> sizes(3, 1);
+  std::copy(inputSize.begin(), inputSize.end(), sizes.begin());
+
+  Halide::Runtime::Buffer<const InputPixelType> inputBuffer(input->GetBufferPointer(), sizes);
+  Halide::Runtime::Buffer<OutputPixelType>      outputBuffer(output->GetBufferPointer(), sizes);
+
+  inputBuffer.set_host_dirty();
+  itkHalideSeparableConvolutionImpl(inputBuffer, kernel_buffers[0], kernel_buffers[1], kernel_buffers[2], outputBuffer);
+  outputBuffer.copy_to_host();
 }
 
 } // end namespace itk

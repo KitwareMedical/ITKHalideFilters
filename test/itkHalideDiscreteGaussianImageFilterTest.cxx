@@ -20,6 +20,7 @@
 
 #include "itkCommand.h"
 #include "itkImageFileWriter.h"
+#include "itkImageFileReader.h"
 #include "itkTestingMacros.h"
 
 namespace
@@ -55,17 +56,23 @@ public:
 int
 itkHalideDiscreteGaussianImageFilterTest(int argc, char * argv[])
 {
-  if (argc < 2)
+  if (argc < 4)
   {
     std::cerr << "Missing parameters." << std::endl;
     std::cerr << "Usage: " << itkNameOfTestExecutableMacro(argv);
+    std::cerr << " inputImage";
     std::cerr << " outputImage";
+    std::cerr << " variance";
     std::cerr << std::endl;
     return EXIT_FAILURE;
   }
-  const char * outputImageFileName = argv[1];
+  const char * inputImageFileName = argv[1];
+  const char * outputImageFileName = argv[2];
+  const char * varianceString = argv[3];
 
-  constexpr unsigned int Dimension = 2;
+  float variance = std::stof(varianceString);
+
+  constexpr unsigned int Dimension = 3;
   using PixelType = float;
   using ImageType = itk::Image<PixelType, Dimension>;
 
@@ -74,17 +81,15 @@ itkHalideDiscreteGaussianImageFilterTest(int argc, char * argv[])
 
   ITK_EXERCISE_BASIC_OBJECT_METHODS(filter, HalideDiscreteGaussianImageFilter, ImageToImageFilter);
 
-  // Create input image to avoid test dependencies.
-  ImageType::SizeType size;
-  size.Fill(128);
-  ImageType::Pointer image = ImageType::New();
-  image->SetRegions(size);
-  image->Allocate();
-  image->FillBuffer(1.1f);
+  using ReaderType = itk::ImageFileReader<ImageType>;
+  ReaderType::Pointer reader = ReaderType::New();
+  reader->SetFileName(inputImageFileName);
+  reader->Update();
 
   ShowProgress::Pointer showProgress = ShowProgress::New();
   filter->AddObserver(itk::ProgressEvent(), showProgress);
-  filter->SetInput(image);
+  filter->SetInput(reader->GetOutput());
+  filter->SetVariance(variance);
 
   using WriterType = itk::ImageFileWriter<ImageType>;
   WriterType::Pointer writer = WriterType::New();
@@ -93,7 +98,6 @@ itkHalideDiscreteGaussianImageFilterTest(int argc, char * argv[])
   writer->SetUseCompression(true);
 
   ITK_TRY_EXPECT_NO_EXCEPTION(writer->Update());
-
 
   std::cout << "Test finished." << std::endl;
   return EXIT_SUCCESS;
