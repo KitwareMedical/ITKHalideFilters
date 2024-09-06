@@ -61,10 +61,18 @@ public:
 
     output(x, y, z) = blur_z(x, y, z);
 
-
     Var ix, iy, iz, ox, oy, oz;
 
-    output.gpu_tile(x, y, z, ix, iy, iz, ox, oy, oz, 4, 4, 4);
+    blur_x.compute_root();
+    blur_x.update().gpu_tile(x, y, z, ix, iy, iz, ox, oy, oz, 8, 8, 8);
+
+    blur_y.compute_root();
+    blur_y.update().gpu_tile(x, y, z, ix, iy, iz, ox, oy, oz, 8, 8, 8);
+
+    blur_z.compute_root();
+    blur_z.update().gpu_tile(x, y, z, ix, iy, iz, ox, oy, oz, 8, 8, 8);
+
+    output.compute_root();
   }
 };
 
