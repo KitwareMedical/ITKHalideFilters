@@ -16,5 +16,5 @@ else()
 endif()
 include(${ITK_USE_FILE})
 
-add_executable(SampleHalidePipeline SampleHalidePipeline.cxx )
+add_executable(SampleHalidePipeline BenchmarkHalideFilter.cxx)
 target_link_libraries(SampleHalidePipeline ${ITK_LIBRARIES})
