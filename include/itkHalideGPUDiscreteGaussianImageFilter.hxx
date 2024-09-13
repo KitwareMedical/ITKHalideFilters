@@ -91,7 +91,8 @@ HalideGPUDiscreteGaussianImageFilter<TInputImage, TOutputImage>::GenerateData()
   Halide::Runtime::Buffer<OutputPixelType>      outputBuffer(output->GetBufferPointer(), sizes);
 
   inputBuffer.set_host_dirty();
-  itkHalideGPUSeparableConvolutionImpl(inputBuffer, kernel_buffers[0], kernel_buffers[1], kernel_buffers[2], outputBuffer);
+  itkHalideGPUSeparableConvolutionImpl(
+    inputBuffer, kernel_buffers[0], kernel_buffers[1], kernel_buffers[2], outputBuffer);
   outputBuffer.copy_to_host();
 }
 

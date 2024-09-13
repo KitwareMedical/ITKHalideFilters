@@ -16,5 +16,8 @@ else()
 endif()
 include(${ITK_USE_FILE})
 
-add_executable(SampleHalidePipeline BenchmarkHalideFilter.cxx)
-target_link_libraries(SampleHalidePipeline ${ITK_LIBRARIES})
+add_executable(ResolutionBenchmark ResolutionBenchmark.cxx)
+target_link_libraries(ResolutionBenchmark ${ITK_LIBRARIES})
+
+add_executable(SigmaBenchmark SigmaBenchmark.cxx)
+target_link_libraries(SigmaBenchmark ${ITK_LIBRARIES})
