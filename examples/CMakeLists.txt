@@ -3,6 +3,8 @@ project(HalideFiltersExamples)
 
 set(ExampleSpecificComponents
   HalideFilters
+  ITKGPUSmoothing
+  ITKImageNoise
   )
 
 if(NOT ITK_SOURCE_DIR)

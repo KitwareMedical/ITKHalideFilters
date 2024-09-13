@@ -17,29 +17,100 @@
  *=========================================================================*/
 
 #include "itkHalideDiscreteGaussianImageFilter.h"
+#include "itkDiscreteGaussianImageFilter.h"
+#include "itkHalideGPUDiscreteGaussianImageFilter.h"
+#include "itkGPUDiscreteGaussianImageFilter.h"
+#include "itkAdditiveGaussianNoiseImageFilter.h"
+#include "itkCastImageFilter.h"
+#include "itkImage.h"
+#include "itkGPUImage.h"
 
-#include "itkCommand.h"
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
 
+#define BENCH(label, samples, block)                                                      \
+  do                                                                                      \
+  {                                                                                       \
+    auto start = std::chrono::high_resolution_clock::now();                               \
+    for (size_t __i = 0; __i < samples; __i++)                                            \
+    {                                                                                     \
+      block;                                                                              \
+    }                                                                                     \
+    auto end = std::chrono::high_resolution_clock::now();                                 \
+    auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count(); \
+    std::cout << #label << " " << (ms / samples) << "ms" << std::endl;                    \
+  } while (0)
 
-int main( int argc, char * argv[] )
+using ImageType = itk::Image<float, 3>;
+using NoiseFilter = itk::AdditiveGaussianNoiseImageFilter<ImageType, ImageType>;
+using GPUImageType = itk::GPUImage<float, 3>;
+using CastToGPUImage = itk::CastImageFilter<ImageType, GPUImageType>;
+
+using CPUBlur = itk::DiscreteGaussianImageFilter<ImageType, ImageType>;
+using HalideBlur = itk::HalideDiscreteGaussianImageFilter<ImageType, ImageType>;
+
+using GPUBlur = itk::GPUDiscreteGaussianImageFilter<GPUImageType, GPUImageType>;
+using HalideGPUBlur = itk::HalideGPUDiscreteGaussianImageFilter<ImageType, ImageType>;
+
+int
+main(int argc, char * argv[])
 {
-  if( argc < 4 )
-    {
-    std::cerr << "Missing parameters." << std::endl;
-    std::cerr << "Usage: " << argv[0]
-      << " inputImage"
-      << " outputImage"
-      << " parameters" << std::endl;
-    return EXIT_FAILURE;
-    }
+  ImageType::IndexValueType SIZE = 300;
+  float                     VARIANCE = 90;
 
+  ImageType::IndexType index;
+  index.Fill(0);
+  ImageType::SizeType size;
+  size.Fill(SIZE);
+  ImageType::RegionType region;
+  region.SetIndex(index);
+  region.SetSize(size);
 
-  // Please, write a complete, self-containted and useful example that
-  // demonstrate a class when being used along with other ITK classes or in
-  // the context of a wider or specific application.
+  ImageType::Pointer image = ImageType::New();
+  image->SetRegions(region);
+  image->Allocate();
+  image->FillBuffer(0.0f);
 
+  NoiseFilter::Pointer noise = NoiseFilter::New();
+  noise->SetInput(image);
+  noise->SetMean(0);
+  noise->SetStandardDeviation(2.0);
+  noise->Update();
+
+  image = noise->GetOutput();
+
+  BENCH(cpu_blur, 1, {
+    CPUBlur::Pointer filter = CPUBlur::New();
+    filter->SetInput(image);
+    filter->SetVariance(VARIANCE);
+    filter->Update();
+  });
+
+  BENCH(halide_cpu_blur, 1, {
+    HalideBlur::Pointer filter = HalideBlur::New();
+    filter->SetInput(image);
+    filter->SetVariance(VARIANCE);
+    filter->Update();
+  });
+
+  BENCH(gpu_blur, 1, {
+    CastToGPUImage::Pointer cast = CastToGPUImage::New();
+    cast->SetInput(image);
+    GPUBlur::Pointer      filter = GPUBlur::New();
+    GPUImageType::Pointer gpu_image = cast->GetOutput();
+    cast->Update();
+    filter->SetInput(gpu_image);
+    filter->SetVariance(VARIANCE);
+    filter->Update();
+    filter->GetOutput()->UpdateBuffers();
+  });
+
+  BENCH(halide_gpu_blur, 1, {
+    HalideGPUBlur::Pointer filter = HalideGPUBlur::New();
+    filter->SetInput(image);
+    filter->SetVariance(VARIANCE);
+    filter->Update();
+  });
 
   return EXIT_SUCCESS;
 }
