@@ -2,6 +2,7 @@ itk_module_test()
 
 set(HalideFiltersTests
   itkHalideDiscreteGaussianImageFilterTest.cxx
+  itkHalideGPUDiscreteGaussianImageFilterTest.cxx
   )
 
 CreateTestDriver(HalideFilters "${HalideFilters-Test_LIBRARIES}" "${HalideFiltersTests}")
@@ -13,6 +14,16 @@ itk_add_test(NAME itkHalideDiscreteGaussianImageFilterTest
   HalideFiltersTestDriver
   --compare DATA{CTChest/ReferenceOutput.mha} ${ITK_TEST_OUTPUT_DIR}/Output.mha
   itkHalideDiscreteGaussianImageFilterTest
+  DATA{CTChest/Input.mha}
+  ${ITK_TEST_OUTPUT_DIR}/Output.mha
+  9
+  )
+
+itk_add_test(NAME itkHalideGPUDiscreteGaussianImageFilterTest
+  COMMAND
+  HalideFiltersTestDriver
+  --compare DATA{CTChest/ReferenceOutput.mha} ${ITK_TEST_OUTPUT_DIR}/Output.mha
+  itkHalideGPUDiscreteGaussianImageFilterTest
   DATA{CTChest/Input.mha}
   ${ITK_TEST_OUTPUT_DIR}/Output.mha
   9
