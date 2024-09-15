@@ -28,19 +28,6 @@
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
 
-#define BENCH(label, samples, block)                                   \
-  do                                                                   \
-  {                                                                    \
-    auto start = std::chrono::high_resolution_clock::now();            \
-    for (size_t __i = 0; __i < samples; __i++)                         \
-    {                                                                  \
-      block;                                                           \
-    }                                                                  \
-    auto end = std::chrono::high_resolution_clock::now();              \
-    auto ms = std::chrono::duration_cast<ms>(end - start).count();     \
-    std::cout << #label << " " << (ms / samples) << "ms" << std::endl; \
-  } while (0)
-
 using ImageType = itk::Image<float, 3>;
 using NoiseFilter = itk::AdditiveGaussianNoiseImageFilter<ImageType, ImageType>;
 using GPUImageType = itk::GPUImage<float, 3>;
