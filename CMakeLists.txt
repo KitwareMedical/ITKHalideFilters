@@ -4,6 +4,8 @@ project(HalideFilters)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 
+option(Module_HalideFilters_USE_AUTOSCHEDULER "Use auto-schedulers for Halide filters" OFF)
+
 # Update the following variables to update the version of Halide used
 set(HALIDE_VERSION "18.0.0")
 set(HALIDE_VERSION_COMMIT "8c651b459a4e3744b413c23a29b5c5d968702bb7")
