@@ -18,6 +18,3 @@ jobs:
     uses: InsightSoftwareConsortium/ITKRemoteModuleBuildTestPackageAction/.github/workflows/build-test-package-python.yml@v5.4.0
     secrets:
       pypi_password: ${{ secrets.pypi_password }}
-    with:
-      # Halide requires glibc 2.34 which is not available on any current manylinux platform.
-      manylinux-platforms: '[]'
