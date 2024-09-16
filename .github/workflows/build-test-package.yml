@@ -18,6 +18,3 @@ jobs:
     uses: InsightSoftwareConsortium/ITKRemoteModuleBuildTestPackageAction/.github/workflows/build-test-package-python.yml@v5.4.0
     secrets:
       pypi_password: ${{ secrets.pypi_password }}
-    with:
-      manylinux-platforms: '["_2_28-x64", "_2_28-aarch64"]'
-      python3-minor-versions: '["9", "10", "11"]'
