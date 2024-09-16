@@ -19,12 +19,14 @@ itk_add_test(NAME itkHalideDiscreteGaussianImageFilterTest
   9
   )
 
-itk_add_test(NAME itkHalideGPUDiscreteGaussianImageFilterTest
-  COMMAND
-  HalideFiltersTestDriver
-  --compare DATA{CTChest/ReferenceOutput.mha} ${ITK_TEST_OUTPUT_DIR}/Output.mha
-  itkHalideGPUDiscreteGaussianImageFilterTest
-  DATA{CTChest/Input.mha}
-  ${ITK_TEST_OUTPUT_DIR}/Output.mha
-  9
-  )
+if(Module_HalideFilters_TEST_GPU)
+  itk_add_test(NAME itkHalideGPUDiscreteGaussianImageFilterTest
+    COMMAND
+    HalideFiltersTestDriver
+    --compare DATA{CTChest/ReferenceOutput.mha} ${ITK_TEST_OUTPUT_DIR}/Output.mha
+    itkHalideGPUDiscreteGaussianImageFilterTest
+    DATA{CTChest/Input.mha}
+    ${ITK_TEST_OUTPUT_DIR}/Output.mha
+    9
+    )
+endif()
