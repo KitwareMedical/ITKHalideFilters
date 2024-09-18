@@ -18,6 +18,8 @@ Halide implementation of common filters.
 
 Experimental integration of Halide runtime into ITK, with Halide implementations of common filters targeting Threads, SIMD, and GPGPU.
 
+See performance details in the accompanying post: `Accelerating ITK Filters with Halide - Kitware Blog <https://www.kitware.com/accelerating-itk-filters-with-halide/>`_
+
 Building
 --------
 
