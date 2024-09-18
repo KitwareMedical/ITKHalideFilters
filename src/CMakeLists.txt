@@ -45,3 +45,4 @@ set(HalideFilters_SRCS
 itk_module_add_library(HalideFilters ${HalideFilters_SRCS})
 target_include_directories(HalideFilters PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 target_link_libraries(HalideFilters PUBLIC itkHalideSeparableConvolutionImpl itkHalideGPUSeparableConvolutionImpl)
+set_target_properties(HalideFilters PROPERTIES LINKER_LANGUAGE CXX)

@@ -14,7 +14,7 @@ jobs:
   cxx-build-workflow:
     uses: InsightSoftwareConsortium/ITKRemoteModuleBuildTestPackageAction/.github/workflows/build-test-cxx.yml@v5.4.0
 
-  python-build-workflow:
-    uses: InsightSoftwareConsortium/ITKRemoteModuleBuildTestPackageAction/.github/workflows/build-test-package-python.yml@v5.4.0
-    secrets:
-      pypi_password: ${{ secrets.pypi_password }}
+#  python-build-workflow:
+#    uses: InsightSoftwareConsortium/ITKRemoteModuleBuildTestPackageAction/.github/workflows/build-test-package-python.yml@v5.4.0
+#    secrets:
+#      pypi_password: ${{ secrets.pypi_password }}
